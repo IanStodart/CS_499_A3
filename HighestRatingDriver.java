@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -30,7 +30,7 @@ public class HighestRatingDriver extends Configured implements Tool {
 		System.exit(exitCode);
 	}
 
-	public int run(String[] args) throws Exception { //Args[0] = Input File, Args[1] = Output File, Args[2] = Movie ID File
+	public int run(String[] args) throws Exception { //Args[0] = Input File, Args[1] = Output File
 		if (args.length != 2) {
 			System.err.printf("Usage: %s needs two arguments, input and output files\n", getClass().getSimpleName());
 			return -1;
@@ -44,7 +44,7 @@ public class HighestRatingDriver extends Configured implements Tool {
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
 		job.setOutputKeyClass(Text.class);
-		job.setOutputValueClass(IntWritable.class);
+		job.setOutputValueClass(DoubleWritable.class);
 		job.setOutputFormatClass(TextOutputFormat.class);
 
 		job.setMapperClass(HighestRatingMapClass.class);
@@ -81,12 +81,10 @@ public class HighestRatingDriver extends Configured implements Tool {
         printTopTen(args, topTen);
 	}
 	public void printTopTen(String[] args, ArrayList<Item> topTen) throws IOException {
-		File read = new File(args[1]);
-        Scanner readIn = new Scanner(read);
 		String[] titles = new String[10];
         
         for(int i = 0; i < 10; i++){
-        	Stream<String> lines = Files.lines(Paths.get(args[2]));
+        	Stream<String> lines = Files.lines(Paths.get("movie_titles.txt"));
         	titles[i] = lines.skip(Integer.parseInt(topTen.get(i).getID())).findFirst().get();
         }
         for(int i = 0; i < 10; i++){
